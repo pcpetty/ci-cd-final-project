@@ -1,0 +1,45 @@
+export GITHUB_ACCOUNT=pcpetty
+
+echo ${GITHUB_ACCOUNT}
+
+
+git clone https://github.com/pcpetty/ci-cd-final-project.git
+
+cd ci-cd-final-project
+
+bash ./bin/setup.sh
+
+exit
+
+
+-------
+
+name: CI workflow
+workflow triggers: push on main branch and pull_request on main branch
+Jobs
+    runs-on: ubuntu-latest
+    container: python:3.9-slim
+Checkout step:
+    name: Checkout
+    uses: actions/checkout@v3
+Install Dependencies step:
+    name: Install dependencies
+    run python -m pip install --upgrade pip and pip install -r requirements.txt commands
+    
+name: {name of workflow}
+on:
+    push:
+      branches: {array of branches}
+    pull_request:
+      branches: {array of branches}
+    jobs:
+      build:
+        runs-on: {placeholder}
+        container: {placeholder}
+        steps:
+          - name: {placeholder}
+            uses: {placeholder}
+          - name: {placeholder}
+            run: |
+            {first command}
+            {second command}
