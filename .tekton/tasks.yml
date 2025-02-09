@@ -118,5 +118,5 @@ spec:
       script: |
         #!/bin/sh
         set -e
-        buildah bud --file $(workspaces.source.path)/Dockerfile -t $(params.image) $(workspaces.source.path)
+        buildah bud --file $(workspaces.source.path)/dockerfile -t $(params.image) $(workspaces.source.path)
 
