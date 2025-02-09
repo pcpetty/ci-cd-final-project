@@ -73,13 +73,8 @@ spec:
       type: string
       default: main
   steps:
-    - name: clone
-      image: alpine/git:latest
-      script: |
-        #!/bin/sh
-        set -e
-        echo "Cloning repository $(params.url) with revision $(params.revision) ..."
-        if [ -d "/workspace/source" ]; then
-          rm -rf /workspace/source/*
-        fi
-        git clone --branch $(params.revision) $(params.url) /workspace/source
+  - name: git-clone
+    image: alpine/git
+    script: |
+      #!/bin/sh
+      git clone $(params.url) $(workspaces.source.path)
