@@ -120,5 +120,31 @@ spec:
         set -e
         # Use '--tls-verify=false' to skip registry authentication
         buildah bud --tls-verify=false --file $(workspaces.source.path)/Dockerfile -t $(params.image) $(workspaces.source.path)
-
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: openshift-client
+spec:
+  description: |
+    This task uses the OpenShift CLI to execute deployment commands.
+  params:
+    - name: SCRIPT
+      description: The OpenShift CLI script to execute
+      type: string
+      default: ""
+  workspaces:
+    - name: manifest-dir
+      optional: true
+    - name: kubeconfig-dir
+      optional: true
+  steps:
+    - name: deploy-app
+      image: quay.io/openshift/origin-cli:latest
+      script: |
+        #!/bin/sh
+        set -e
+        # Run the OpenShift CLI deployment command
+        oc create deployment my-app --image=$(params.image) --dry-run=client -o yaml | oc apply -f -
+        oc expose deployment my-app --port=8080 --target-port=8000
 
