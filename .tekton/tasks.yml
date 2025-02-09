@@ -53,3 +53,33 @@ spec:
         python -m pip install --upgrade pip wheel
         pip install -r requirements.txt
         nosetests $(params.args)
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: git-clone
+spec:
+  description: This task clones a Git repository.
+  workspaces:
+    - name: source
+      description: The workspace to contain the cloned repository.
+      mountPath: /workspace/source
+  params:
+    - name: url
+      description: Git repository URL
+      type: string
+    - name: revision
+      description: Git revision (branch, tag, commit SHA)
+      type: string
+      default: main
+  steps:
+    - name: clone
+      image: alpine/git:latest
+      script: |
+        #!/bin/sh
+        set -e
+        echo "Cloning repository $(params.url) with revision $(params.revision) ..."
+        if [ -d "/workspace/source" ]; then
+          rm -rf /workspace/source/*
+        fi
+        git clone --branch $(params.revision) $(params.url) /workspace/source
