@@ -105,12 +105,10 @@ kind: Task
 metadata:
   name: buildah-build
 spec:
-  description: This task builds an image using Buildah.
-  workspaces:
-    - name: source
+  description: This task builds an image using Buildah and pushes it to a registry.
   params:
     - name: image
-      description: Reference of the image Buildah will produce.
+      description: The image to build and push.
       type: string
     - name: dockerfile
       description: Path to the Dockerfile.
@@ -128,6 +126,9 @@ spec:
         echo "Building image: $(params.image) using Dockerfile: $(params.dockerfile)"
 
         buildah bud --tls-verify=false --file $(workspaces.source.path)/$(params.dockerfile) -t $(params.image) $(workspaces.source.path)
+
+        echo "Pushing image to registry: $(params.image)"
+        buildah push $(params.image)
 ---
 apiVersion: tekton.dev/v1beta1
 kind: Task
