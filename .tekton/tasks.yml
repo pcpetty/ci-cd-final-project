@@ -168,4 +168,3 @@ spec:
         else
           echo "Service for $(params.app-name) already exists."
         fi
-
