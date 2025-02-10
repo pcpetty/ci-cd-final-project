@@ -128,8 +128,6 @@ spec:
         echo "Building image: $(params.image) using Dockerfile: $(params.dockerfile)"
 
         buildah bud --tls-verify=false --file $(workspaces.source.path)/$(params.dockerfile) -t $(params.image) $(workspaces.source.path)
-
----
 ---
 apiVersion: tekton.dev/v1beta1
 kind: Task
@@ -160,4 +158,3 @@ spec:
         fi
 
         oc expose deployment my-app --port=8080 --target-port=8000 || echo "Service already exposed."
-
