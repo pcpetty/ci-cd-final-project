@@ -110,16 +110,26 @@ spec:
     - name: source
   params:
     - name: image
-      description: The image to build.
+      description: Reference of the image Buildah will produce.
       type: string
+    - name: dockerfile
+      description: Path to the Dockerfile.
+      type: string
+      default: "Dockerfile"
   steps:
     - name: build
       image: quay.io/buildah/stable
+      securityContext:
+        privileged: true
       script: |
         #!/bin/sh
         set -e
-        # Use '--tls-verify=false' to skip registry authentication
-        buildah bud --tls-verify=false --file $(workspaces.source.path)/Dockerfile -t $(params.image) $(workspaces.source.path)
+        export STORAGE_DRIVER=vfs
+        echo "Building image: $(params.image) using Dockerfile: $(params.dockerfile)"
+
+        buildah bud --tls-verify=false --file $(workspaces.source.path)/$(params.dockerfile) -t $(params.image) $(workspaces.source.path)
+
+---
 ---
 apiVersion: tekton.dev/v1beta1
 kind: Task
@@ -129,16 +139,10 @@ spec:
   description: |
     This task uses the OpenShift CLI to execute deployment commands.
   params:
-    - name: SCRIPT
-      description: The OpenShift CLI script to execute
-      type: string
-      default: ""
     - name: image
-      description: The container image to deploy
+      description: Reference of the image to deploy.
       type: string
   workspaces:
-    - name: manifest-dir
-      optional: true
     - name: kubeconfig-dir
       optional: true
   steps:
@@ -147,6 +151,13 @@ spec:
       script: |
         #!/bin/sh
         set -e
-        # Run the OpenShift CLI deployment command
-        oc create deployment my-app --image=$(params.image) --dry-run=client -o yaml | oc apply -f -
-        oc expose deployment my-app --port=8080 --target-port=8000
+        echo "Deploying application using image: $(params.image)"
+
+        if oc get deployment my-app; then
+          oc set image deployment/my-app my-app=$(params.image)
+        else
+          oc create deployment my-app --image=$(params.image)
+        fi
+
+        oc expose deployment my-app --port=8080 --target-port=8000 || echo "Service already exposed."
+
