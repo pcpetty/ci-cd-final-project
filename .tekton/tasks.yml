@@ -150,21 +150,23 @@ spec:
       script: |
         #!/bin/sh
         set -e
-        echo "Deploying application: $(params.app-name) using image: $(params.image)"
-
+        
+        echo "Deploying application: $(params.app-name)"
+        echo "Using image: $(params.image)"
+        
         # Check if deployment exists
-        if oc get deployment $(params.app-name); then
+        if oc get deployment "$(params.app-name)"; then
           echo "Updating existing deployment..."
-          oc set image deployment/$(params.app-name) $(params.app-name)=$(params.image)
+          oc set image deployment/"$(params.app-name)" "$(params.app-name)"="$(params.image)"
         else
           echo "Creating new deployment..."
-          oc create deployment $(params.app-name) --image=$(params.image)
+          oc create deployment "$(params.app-name)" --image="$(params.image)"
         fi
-
+        
         # Expose the deployment if not already exposed
-        if ! oc get service $(params.app-name); then
+        if ! oc get service "$(params.app-name)"; then
           echo "Exposing deployment as a service..."
-          oc expose deployment $(params.app-name) --port=8080 --target-port=8000
+          oc expose deployment/"$(params.app-name)" --port=8080 --target-port=8000
         else
           echo "Service for $(params.app-name) already exists."
         fi
