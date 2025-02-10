@@ -133,6 +133,9 @@ spec:
       description: The OpenShift CLI script to execute
       type: string
       default: ""
+    - name: image
+      description: The container image to deploy
+      type: string
   workspaces:
     - name: manifest-dir
       optional: true
@@ -147,4 +150,3 @@ spec:
         # Run the OpenShift CLI deployment command
         oc create deployment my-app --image=$(params.image) --dry-run=client -o yaml | oc apply -f -
         oc expose deployment my-app --port=8080 --target-port=8000
-
